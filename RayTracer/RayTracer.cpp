@@ -10,56 +10,54 @@ using namespace std;
 int main() {
     ofstream renderFile("renderFile.ppm");
 
-    Vector cameraOrigin = Vector(0, 0, -5);
+    Vector cameraOrigin = Vector(0, 0, 5);
 
     Sphere s1 = Sphere(Vector(0, 0, 0), 0.4);
 
+    // Colors 
+    Vector colorWhite = Vector(255, 255, 255);
+    Vector colorRed = Vector(255, 0, 0);
+
+    int imagePlaneX = 4;
+    int imagePlaneY = 2;
+    int imagePlaneZ = 4;
+
     // Output file dimensions 
-    int dimensionX = 5;
-    int dimensionY = 5;
+    int dimensionX = 50;
+    int dimensionY = 50;
 
     renderFile << "P3" << endl << dimensionX << " " << dimensionY << endl << "255" << endl;
     for (int j = dimensionY - 1; j >= 0; j--) {
         for (int i = 0; i < dimensionX; i++) {
-            float r = float(i) / float(dimensionX);
+            /*float r = float(i) / float(dimensionX);
             float g = float(j) / float(dimensionY);
             float b = 0.2;
             int ir = int(255.99 * r);
             int ig = int(255.99 * g);
-            int ib = int(255.99 * b);
-            renderFile << ir << " " << ig << " " << ib << endl;
+            int ib = int(255.99 * b);*/
 
-            Vector direction = Vector(i, j, 0);
-            cout << direction << endl;
+            float x = ((i / dimensionX) * imagePlaneX) - (imagePlaneX/2);
+            float y = ((j / dimensionY) * imagePlaneY) - (imagePlaneY/2);
+
+            Vector direction = Vector(x, y, 0); 
+            direction /= direction.getLength();
+
+            Ray ray = Ray(cameraOrigin, direction);
+
+            if (s1.isOnSphere(ray)) {
+                // Output red 
+                renderFile << colorRed.toString() << endl;
+            }
+            else {
+                // Output white 
+                renderFile << colorWhite.toString() << endl;
+            }
+
+             //renderFile << ir << " " << ig << " " << ib << endl;
+            //renderFile << colorWhite.toString() << endl;
         }
     }
 
     renderFile.close();
-
-    // Vector testing code 
-    Vector v1 = Vector(1, 1, 1);
-    Vector v2 = Vector(0, 1, 0);
-    float s = 2;
-
-    v1 = v1 * s;
-    cout << v1 << endl;
-
-    // Ray testing code 
-    Vector origin = Vector(0, 0, 0);
-    Vector direction = Vector(1, 1, 0);
-    Ray r = Ray(origin, direction);
-
-    cout << r.getPoint(5) << endl;
-
-
-    // Raytracing pseudocode 
-
-    /*
-    for pixel in screen: 
-        ray(camera, pixel)
-        get color
-        write color to ppm file 
-    
-    */
 }
 
