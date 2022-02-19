@@ -147,4 +147,3 @@ public:
 		return *this;
 	}
 };
-
