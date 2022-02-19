@@ -23,36 +23,6 @@ public:
 	}
 
 	bool isOnSphere(const Ray& ray) {
-		// Original slow method 
-		//// (x-xc)^2 + (y-yc)^2 + (z-zx)^2 = r^2
-		/*float A = 1;
-		float B = 2 * (ray.direction.x*ray.origin.x - ray.direction.x*center.x + 
-					   ray.direction.y*ray.origin.y - ray.direction.y*center.y + 
-					   ray.direction.z*ray.origin.z - ray.direction.z*center.z);
-
-		float C = ray.origin.x*ray.origin.x - 2*ray.origin.x*center.x + center.x*center.x +  
-				  ray.origin.y*ray.origin.y - 2*ray.origin.y*center.y + center.y*center.y + 
-				  ray.origin.z*ray.origin.z - 2*ray.origin.z*center.z + center.z*center.z 
-			- (radius * radius);
-
-		if (B*B - 4*C >= 0) {
-			return true;
-		}
-
-		return false;*/
-
-		// Internet method 
-		/*Vector OC = ray.origin - center;
-		Vector d = ray.direction;
-		float a = d.dot(ray.direction);
-		float b = 2.0 * OC.dot(ray.direction);
-		float c = OC.dot(OC) - (radius * radius);
-		float discriminant = b * b - 4 * a * c;
-
-		return (discriminant > 0);
-		*/
-
-		// Fast method 
 		// 1 - Determine whether the ray's origin is outside the sphere 
 		Vector OC = center - ray.origin;
 		bool insideSphere;
