@@ -86,11 +86,10 @@ public:
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
-		Vector diffuse = (surfaceNormal.dot(lightDirection) > 0) * Od;
+		Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection));
 		Vector ambient = ambientIntensity * Ka * Od;
 
 		Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
-		float coef = Ks * pow(max((float)0, view.dot(R)), kGls);
 		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls);
 
 		Vector result = diffuse + ambient + specular;

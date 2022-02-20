@@ -13,6 +13,7 @@ public:
 	Ray(const Vector& origin, const Vector& direction) {
 		this->origin = origin;
 		this->direction = direction;
+		length = 0;
 	}
 	Ray(const Vector& origin, const Vector& direction, const float& length) {
 		this->origin = origin;
