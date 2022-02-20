@@ -151,4 +151,10 @@ public:
 	string toString() {
 		return to_string((int)x) + " " + to_string((int)y) + " " + to_string((int)z);
 	}
+
+	void clamp(const float& max) {
+		x = min(x, max);
+		y = min(y, max);
+		z = min(z, max);
+	}
 };

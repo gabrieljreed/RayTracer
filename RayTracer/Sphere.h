@@ -11,6 +11,10 @@ class Sphere {
 public:
 	Vector center;
 	float radius;
+	
+	// Shading 
+	Vector Od, Os;
+	float Ka, Kd, Ks, kGls;
 
 	Sphere() {
 		center = Vector();
@@ -20,6 +24,17 @@ public:
 	Sphere(const Vector& center, const float& radius) {
 		this->center = center;
 		this->radius = radius; 
+	}
+
+	Sphere(const Vector& center, const float& radius, const Vector& color, const Vector& specularColor, const float& Kd, const float& Ks, const float& Ka, const float& kGls) {
+		this->center = center;
+		this->radius = radius;
+		this->Od = color;
+		this->Os = specularColor;
+		this->Kd = Kd;
+		this->Ks = Ks;
+		this->Ka = Ka;
+		this->kGls = kGls;
 	}
 
 	bool isOnSphere(const Ray& ray) {
@@ -37,6 +52,7 @@ public:
 
 		// 3 - If tCA is less than 0 and the ray origin is outside the sphere, the ray does not intersect 
 		if (tCA < 0 && !insideSphere) {
+			//return Vector(255, 255, 255);
 			return false;
 		}
 
@@ -45,6 +61,7 @@ public:
 
 		// 5 - If tCH2 < 0, the ray does not intersect the sphere 
 		if (tCH2 < 0) {
+			//return Vector(255, 255, 255);
 			return false;
 		}
 
@@ -66,5 +83,19 @@ public:
 		Vector surfaceNormal = Vector((intersectionPoint.x - center.x) / radius, (intersectionPoint.y - center.y) / radius, (intersectionPoint.z - center.z) / radius);
 
 		return true;
+	}
+
+	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
+		Vector diffuse = (surfaceNormal.dot(lightDirection) > 0) * Od;
+		Vector ambient = ambientIntensity * Ka * Od;
+
+		Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
+		float coef = Ks * pow(max((float)0, view.dot(R)), kGls);
+		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls);
+
+		Vector result = diffuse + ambient + specular;
+		result.clamp(255);
+
+		return result;
 	}
 };
