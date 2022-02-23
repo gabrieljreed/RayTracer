@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <math.h>
+#include <cmath>
 
 #include "Vector.h"
 #include "Ray.h"
@@ -13,6 +14,8 @@ float computeIntersectionDistance(const Sphere& sphere, const Ray& ray);
 
 int main() {
     ofstream renderFile("renderFile.ppm");
+
+    float pi = 3.14159265358979323846;
 
     // Render objects
     Sphere s1 = Sphere(Vector(0.45, 0, -0.15), 0.15, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0);
@@ -38,8 +41,9 @@ int main() {
     // Camera setup 
     Vector cameraOrigin = Vector(0, 0, 1);
     float FOV = 90.0;
-    float imagePlaneX = 1; // FIXME: I need a better way to define the viewplane and file size - properly implement the FOV stuff (look at Martin's messages) 
-    float imagePlaneY = 1;
+    float imagePlaneX = abs(tan(FOV)); // FIXME: I need a better way to define the viewplane and file size - properly implement the FOV stuff (look at Martin's messages) 
+    float imagePlaneY = abs(tan(FOV));
+    cout << imagePlaneX << " " << imagePlaneY << endl; 
     float imagePlaneZ = 4;
 
     // Output file dimensions 
