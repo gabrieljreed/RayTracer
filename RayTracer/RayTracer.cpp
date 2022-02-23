@@ -18,15 +18,17 @@ int main() {
     float pi = 3.14159265358979323846;
 
     // Render objects
-    Sphere s1 = Sphere(Vector(0.45, 0, -0.15), 0.15, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0);
-    Sphere s2 = Sphere(Vector(0, 0, -0.1), 0.2, Vector(255, 0, 0), Vector(1, 1, 1), 0.6, 0.3, 0.1, 32.0);
-    Sphere s3 = Sphere(Vector(-0.6, 0, 0), 0.3, Vector(0, 255, 0), Vector(0.5, 1.0, 0.5), 0.7, 0.2, 0.1, 64.0);
-    Sphere s4 = Sphere(Vector(0.0, -10000.5, 0.0), 10000.0, Vector(0, 0, 255), Vector(1, 1, 1), 0.9, 0.0, 0.1, 16.0);
+    Sphere s1 = Sphere(Vector(-0.5, -0.5, -1.0), 0.4, Vector(154, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 128.0);
+    Sphere s2 = Sphere(Vector(0.5, -0.5, -1.0), 0.4, Vector(255, 0, 154), Vector(1, 1, 1), 0.6, 0.3, 0.1, 32.0);
+    Sphere s3 = Sphere(Vector(-0.5, 0.5, -1.0), 0.4, Vector(0, 255, 154), Vector(0.5, 1.0, 0.5), 0.7, 0.2, 0.1, 64.0);
+    Sphere s4 = Sphere(Vector(0.5, 0.5, -1.0), 0.4, Vector(154, 0, 255), Vector(1, 1, 1), 0.9, 0.0, 0.1, 16.0);
+    Sphere s5 = Sphere(Vector(0.0, 0.0, -7.0), 5.0, Vector(75, 154, 75), Vector(1, 1, 1), 0.9, 0.9, 0.9, 128.0);
     vector<Sphere> spheres;
     spheres.push_back(s1);
     spheres.push_back(s2);
     spheres.push_back(s3);
     spheres.push_back(s4);
+    spheres.push_back(s5);
 
     // Lighting 
     Vector directionToLight = Vector(1, 1, -1);
@@ -41,9 +43,8 @@ int main() {
     // Camera setup 
     Vector cameraOrigin = Vector(0, 0, 1);
     float FOV = 90.0;
-    float imagePlaneX = abs(tan(FOV)); // FIXME: I need a better way to define the viewplane and file size - properly implement the FOV stuff (look at Martin's messages) 
+    float imagePlaneX = abs(tan(FOV));
     float imagePlaneY = abs(tan(FOV));
-    cout << imagePlaneX << " " << imagePlaneY << endl; 
     float imagePlaneZ = 4;
 
     // Output file dimensions 
