@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 #include "Vector.h"
 #include "Ray.h"
@@ -14,16 +15,20 @@ int main() {
     ofstream renderFile("renderFile.ppm");
 
     // Render objects
-    Sphere s1 = Sphere(Vector(0, 0, -1), 0.4, Vector(255, 0, 255), Vector(1, 1, 1), 0.7, 0.2, 0.1, 16.0);
-    Sphere s2 = Sphere(Vector(1, 1, -2), 0.8, Vector(0, 255, 0), Vector(1, 1, 1), 0.7, 0.2, 0.1, 16.0);
+    Sphere s1 = Sphere(Vector(0.45, 0, -0.15), 0.15, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0);
+    Sphere s2 = Sphere(Vector(0, 0, -0.1), 0.2, Vector(255, 0, 0), Vector(1, 1, 1), 0.6, 0.3, 0.1, 32.0);
+    Sphere s3 = Sphere(Vector(-0.6, 0, 0), 0.3, Vector(0, 255, 0), Vector(0.5, 1.0, 0.5), 0.7, 0.2, 0.1, 64.0);
+    Sphere s4 = Sphere(Vector(0.0, -10000.5, 0.0), 10000.0, Vector(0, 0, 255), Vector(1, 1, 1), 0.9, 0.0, 0.1, 16.0);
     vector<Sphere> spheres;
     spheres.push_back(s1);
     spheres.push_back(s2);
+    spheres.push_back(s3);
+    spheres.push_back(s4);
 
     // Lighting 
-    Vector directionToLight = Vector(0, 1, 0);
-    Vector lightColor = Vector(255, 255, 255);
-    Vector ambientLighting = Vector(0.1, 0.1, 0.1) * 10;
+    Vector directionToLight = Vector(1, 1, -1);
+    Vector lightColor = Vector(1, 1, 1);
+    Vector ambientLighting = Vector(0.1, 0.1, 0.1);
 
     // Colors 
     Vector backgroundColor = Vector(0.2, 0.2, 0.2) * 255;
@@ -32,13 +37,14 @@ int main() {
 
     // Camera setup 
     Vector cameraOrigin = Vector(0, 0, 1);
-    float imagePlaneX = 4; // FIXME: I need a better way to define the viewplane and file size 
-    float imagePlaneY = 4;
+    float FOV = 90.0;
+    float imagePlaneX = 1; // FIXME: I need a better way to define the viewplane and file size - properly implement the FOV stuff (look at Martin's messages) 
+    float imagePlaneY = 1;
     float imagePlaneZ = 4;
 
     // Output file dimensions 
-    int dimensionX = 200;
-    int dimensionY = 200;
+    int dimensionX = 400;
+    int dimensionY = 400;
 
     renderFile << "P3" << endl << dimensionX << " " << dimensionY << endl << "255" << endl;
     for (int j = dimensionY - 1; j >= 0; j--) {
@@ -47,7 +53,7 @@ int main() {
             float y = (float(j) / float(dimensionY) * imagePlaneY) - (imagePlaneY / 2);
 
             Vector direction = Vector(x, y, -1); 
-            direction /= direction.getLength();
+            direction.unitVector();
 
             Ray ray = Ray(cameraOrigin, direction);
 
@@ -78,7 +84,7 @@ int main() {
                     (intersectionPoint.z - closestSphere.center.z) / closestSphere.radius);
 
                 // Write color to renderFile 
-                renderFile << closestSphere.calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, Vector(0, 0, -1)).toString() << endl; // FIXME: What is the right "view" vector? 
+                renderFile << closestSphere.calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction).toString() << endl; // FIXME: Should I reverse ray.direction? ( *= -1)
             }
         }
     }

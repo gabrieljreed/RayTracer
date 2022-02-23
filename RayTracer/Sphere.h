@@ -86,14 +86,18 @@ public:
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
+		lightDirection.unitVector();
+		surfaceNormal.unitVector();
 		Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection));
+
 		Vector ambient = ambientIntensity * Ka * Od;
 
 		Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
-		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls);
+		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) *255;
 
 		Vector result = diffuse + ambient + specular;
-		result.clamp(255);
+		//result = specular;
+		// result.clamp(255); // In theory, you shouldn't have to clamp 
 
 		return result;
 	}
