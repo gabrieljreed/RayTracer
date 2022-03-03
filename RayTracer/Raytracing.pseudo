@@ -1,0 +1,24 @@
+for j in y:
+    for i in x:
+        ray = calculateRay()
+
+        closestObject = None
+        objDist = FLT_MAX
+        for obj in objects:
+            temp = obj.computeIntersectionDistance(ray)
+            if temp < objDist:
+                closestObject = obj
+                objDist = temp
+
+        if objDist == FLT_MAX:  # No objects were hit
+            renderFile << backgroundColor << endl;
+        else:
+            # Calculate intersection point
+
+            # Calculate surface normal
+
+            # Calculate color
+
+            # Write color
+
+            # 

@@ -1,0 +1,25 @@
+# Ray Plane Intersection
+
+Vd = planeNormal.dot(ray.direction)
+
+if Vd == 0:
+    return  # Ray is parallel to plane
+
+Vo = -(pn.dot(r) + d)  # What is order of operations here?
+
+t = Vo / Vd
+
+if t < 0:
+    return
+
+if Vd > 0:
+    pass
+    # Reverse plane normal
+
+return Vector(xo+xdt, yo+ydt, zo+zdt)
+
+
+
+
+
+# Ray polygon intersection

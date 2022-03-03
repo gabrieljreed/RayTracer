@@ -12,7 +12,7 @@
 
 using namespace std;
 
-float computeIntersectionDistance(const Sphere& sphere, const Ray& ray);
+float computeIntersectionDistance(const Renderable& object, const Ray& ray);
 
 int main() {
     ofstream renderFile("renderFile.ppm");
@@ -20,7 +20,7 @@ int main() {
     const float pi = 3.14159265358979323846;
 
     // Render objects
-    Sphere s1 = Sphere(Vector(-0.5, -0.5, -1.0), 0.4, Vector(154, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 128.0);
+    Sphere s1 = Sphere(Vector(-0.5, -0.5, -1.0), 0.4, Vector(154, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 128.0, 0.9);
     vector<Vector> verts;
     verts.push_back(Vector(0.0, -0.7, -0.5));
     verts.push_back(Vector(1.0, 0.4, -1.0));
@@ -28,10 +28,6 @@ int main() {
     Polygon t1 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 1.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
     vector<Renderable> objects;
     objects.push_back(s1);
-    objects.push_back(s2);
-    objects.push_back(s3);
-    objects.push_back(s4);
-    objects.push_back(s5);
 
     // Lighting 
     Vector directionToLight = Vector(1, 1, -1);
@@ -63,36 +59,36 @@ int main() {
             Vector direction = Vector(x, y, -1); 
             direction.unitVector();
 
-            Ray ray = Ray(cameraOrigin, direction);
+            Ray ray = Ray(cameraOrigin, direction); // Ray from camera through each pixel 
 
             // Find closest sphere along ray 
-            Sphere closestSphere; // Optimize this with pointers 
-            float sphereDist = FLT_MAX;
+            Renderable* closestObject; 
+            float objDist = FLT_MAX;
             for (unsigned int k = 0; k < objects.size(); k++) {
                 float temp = computeIntersectionDistance(objects[k], ray);
-                if (temp < sphereDist) {
-                    closestSphere = objects[k];
-                    sphereDist = temp;
+                if (temp < objDist) {
+                    closestObject = &objects[k];
+                    objDist = temp;
                 }
             }
 
-            if (sphereDist == FLT_MAX) {
+            if (objDist == FLT_MAX) {
                 // No spheres were hit 
                 renderFile << backgroundColor.toString() << endl;
             }
             else {
                 // 7 - Calculate intersection point 
-                Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * sphereDist,
-                    ray.origin.y + ray.direction.y * sphereDist,
-                    ray.origin.z + ray.direction.z * sphereDist);
+                Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * objDist,
+                    ray.origin.y + ray.direction.y * objDist,
+                    ray.origin.z + ray.direction.z * objDist);
 
                 // 8 - Calculate surface normal 
-                Vector surfaceNormal = Vector((intersectionPoint.x - closestSphere.center.x) / closestSphere.radius,
-                    (intersectionPoint.y - closestSphere.center.y) / closestSphere.radius,
-                    (intersectionPoint.z - closestSphere.center.z) / closestSphere.radius);
+                Vector surfaceNormal = Vector((intersectionPoint.x - closestObject.center.x) / closestObject.radius,
+                    (intersectionPoint.y - closestObject.center.y) / closestObject.radius,
+                    (intersectionPoint.z - closestObject.center.z) / closestObject.radius);
 
                 // Write color to renderFile 
-                renderFile << closestSphere.calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction).toString() << endl; // FIXME: Should I reverse ray.direction? ( *= -1)
+                renderFile << closestObject.calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction).toString() << endl;
             }
         }
     }
@@ -100,11 +96,11 @@ int main() {
     renderFile.close();
 }
 
-float computeIntersectionDistance(const Sphere& sphere, const Ray& ray) {
-    Vector OC = sphere.center - ray.origin;
+float computeIntersectionDistance(const Renderable& object, const Ray& ray) {
+    Vector OC = object.center - ray.origin;
     // 1 - Determine if the ray origin is inside the sphere 
     bool insideSphere;
-    if (OC.getLength() < sphere.radius) {
+    if (OC.getLength() < object.radius) {
         insideSphere = true;
     }
     else {
@@ -120,7 +116,7 @@ float computeIntersectionDistance(const Sphere& sphere, const Ray& ray) {
     }
 
     // 4 - Find tHC2: distance from closest approach to sphere surface 
-    float tCH2 = sphere.radius * sphere.radius - OC.getLength() * OC.getLength() + tCA * tCA;
+    float tCH2 = object.radius * object.radius - OC.getLength() * OC.getLength() + tCA * tCA;
 
     // 5 - If tCH2 < 0, the ray does not intersect the sphere 
     if (tCH2 < 0) {
