@@ -6,7 +6,9 @@
 
 #include "Vector.h"
 #include "Ray.h"
+#include "Renderable.h"
 #include "Sphere.h"
+#include "Polygon.h"
 
 using namespace std;
 
@@ -15,20 +17,21 @@ float computeIntersectionDistance(const Sphere& sphere, const Ray& ray);
 int main() {
     ofstream renderFile("renderFile.ppm");
 
-    float pi = 3.14159265358979323846;
+    const float pi = 3.14159265358979323846;
 
     // Render objects
     Sphere s1 = Sphere(Vector(-0.5, -0.5, -1.0), 0.4, Vector(154, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 128.0);
-    Sphere s2 = Sphere(Vector(0.5, -0.5, -1.0), 0.4, Vector(255, 0, 154), Vector(1, 1, 1), 0.6, 0.3, 0.1, 32.0);
-    Sphere s3 = Sphere(Vector(-0.5, 0.5, -1.0), 0.4, Vector(0, 255, 154), Vector(0.5, 1.0, 0.5), 0.7, 0.2, 0.1, 64.0);
-    Sphere s4 = Sphere(Vector(0.5, 0.5, -1.0), 0.4, Vector(154, 0, 255), Vector(1, 1, 1), 0.9, 0.0, 0.1, 16.0);
-    Sphere s5 = Sphere(Vector(0.0, 0.0, -7.0), 5.0, Vector(75, 154, 75), Vector(1, 1, 1), 0.9, 0.9, 0.9, 128.0);
-    vector<Sphere> spheres;
-    spheres.push_back(s1);
-    spheres.push_back(s2);
-    spheres.push_back(s3);
-    spheres.push_back(s4);
-    spheres.push_back(s5);
+    vector<Vector> verts;
+    verts.push_back(Vector(0.0, -0.7, -0.5));
+    verts.push_back(Vector(1.0, 0.4, -1.0));
+    verts.push_back(Vector(0.0, -0.7, -1.5));
+    Polygon t1 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 1.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
+    vector<Renderable> objects;
+    objects.push_back(s1);
+    objects.push_back(s2);
+    objects.push_back(s3);
+    objects.push_back(s4);
+    objects.push_back(s5);
 
     // Lighting 
     Vector directionToLight = Vector(1, 1, -1);
@@ -47,7 +50,7 @@ int main() {
     float imagePlaneY = abs(tan(FOV));
     float imagePlaneZ = 4;
 
-    // Output file dimensions 
+    // Define output file resolution
     int dimensionX = 400;
     int dimensionY = 400;
 
@@ -65,10 +68,10 @@ int main() {
             // Find closest sphere along ray 
             Sphere closestSphere; // Optimize this with pointers 
             float sphereDist = FLT_MAX;
-            for (unsigned int k = 0; k < spheres.size(); k++) {
-                float temp = computeIntersectionDistance(spheres[k], ray);
+            for (unsigned int k = 0; k < objects.size(); k++) {
+                float temp = computeIntersectionDistance(objects[k], ray);
                 if (temp < sphereDist) {
-                    closestSphere = spheres[k];
+                    closestSphere = objects[k];
                     sphereDist = temp;
                 }
             }

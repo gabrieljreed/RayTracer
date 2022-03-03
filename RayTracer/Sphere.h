@@ -2,12 +2,13 @@
 
 #include <math.h>
 
+#include "Renderable.h"
 #include "Vector.h"
 #include "Ray.h"
 
 using namespace std;
 
-class Sphere {
+class Sphere : public Renderable {
 public:
 	Vector center;
 	float radius;
@@ -26,7 +27,7 @@ public:
 		this->radius = radius; 
 	}
 
-	Sphere(const Vector& center, const float& radius, const Vector& color, const Vector& specularColor, const float& Kd, const float& Ks, const float& Ka, const float& kGls) {
+	Sphere(const Vector& center, const float& radius, const Vector& color, const Vector& specularColor, const float& Kd, const float& Ks, const float& Ka, const float& kGls, const float& Refl) {
 		this->center = center;
 		this->radius = radius;
 		this->Od = color;
@@ -35,6 +36,7 @@ public:
 		this->Ks = Ks;
 		this->Ka = Ka;
 		this->kGls = kGls;
+		Renderable::Refl = Refl; 
 	}
 
 	bool isOnSphere(const Ray& ray) {
