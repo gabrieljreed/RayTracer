@@ -39,9 +39,9 @@ public:
 		Renderable::Refl = Refl; 
 	}
 
-	bool isOnSphere(const Ray& ray) {
-		// 1 - Determine whether the ray's origin is outside the sphere 
+	float calculateIntersectionDistance(const Ray& ray) {
 		Vector OC = center - ray.origin;
+		// 1 - Determine if the ray origin is inside the sphere 
 		bool insideSphere;
 		if (OC.getLength() < radius) {
 			insideSphere = true;
@@ -49,13 +49,13 @@ public:
 		else {
 			insideSphere = false;
 		}
+
 		// 2 - Find tCA: closest approach of ray to sphere center 
 		float tCA = OC.dot(ray.direction);
 
 		// 3 - If tCA is less than 0 and the ray origin is outside the sphere, the ray does not intersect 
 		if (tCA < 0 && !insideSphere) {
-			//return Vector(255, 255, 255);
-			return false;
+			return FLT_MAX;
 		}
 
 		// 4 - Find tHC2: distance from closest approach to sphere surface 
@@ -63,12 +63,11 @@ public:
 
 		// 5 - If tCH2 < 0, the ray does not intersect the sphere 
 		if (tCH2 < 0) {
-			//return Vector(255, 255, 255);
-			return false;
+			return FLT_MAX;
 		}
-
 		// 6 - Find t: intersection distance 
 		float t;
+
 		if (insideSphere) {
 			t = tCA - sqrt(tCH2);
 		}
@@ -76,15 +75,13 @@ public:
 			t = tCA + sqrt(tCH2);
 		}
 
-		// 7 - Calculate intersection point 
-		Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * t,
-										  ray.origin.y + ray.direction.y * t,
-										  ray.origin.z + ray.direction.z * t);
+		return t;
+	}
 
-		// 8 - Calculate surface normal 
-		Vector surfaceNormal = Vector((intersectionPoint.x - center.x) / radius, (intersectionPoint.y - center.y) / radius, (intersectionPoint.z - center.z) / radius);
-
-		return true;
+	Vector calculateSurfaceNormal(const Vector& intersectionPoint) {
+		return Vector((intersectionPoint.x - center.x) / radius,
+			(intersectionPoint.y - center.y) / radius,
+			(intersectionPoint.z - center.z) / radius);
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {

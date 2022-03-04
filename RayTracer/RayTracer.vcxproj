@@ -142,7 +142,9 @@
     <ClCompile Include="RayTracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Polygon.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="Renderable.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Vector.h" />
   </ItemGroup>

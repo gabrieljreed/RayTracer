@@ -2,24 +2,73 @@
 
 Vd = planeNormal.dot(ray.direction)
 
-if Vd == 0:
-    return  # Ray is parallel to plane
+if Vd >= 0:
+    return  # Ray is pointing away (>0) or parallel to plane (=0)
 
-Vo = -(pn.dot(r) + d)  # What is order of operations here?
+Vo = -(planeNormal.dot(ray.origin) + distanceToPlane)  # What is order of operations here?
 
-t = Vo / Vd
+t = Vo / Vd  # This is the intersection distance
 
 if t < 0:
-    return
+    return  # Point is behind the ray
 
 if Vd > 0:
     pass
-    # Reverse plane normal
+    planeNormal *= -1
 
-return Vector(xo+xdt, yo+ydt, zo+zdt)
-
-
+intersectionPoint = Vector(xo+xdt, yo+ydt, zo+zdt)
 
 
 
-# Ray polygon intersection
+# Ray polygon intersection - maybe look for triangles only algorithm?
+
+# 0.5: Calculate polygon normal - will be same as plane normal?
+v1 = polygon.verts[0] - polygon.verts[1]
+v2 = polygon.verts[2] - polygon.verts[1]
+
+normal = v2.cross(v1)
+
+# 1: Determine the dominant coordinate (biggest magnitude coordinate) of the polygon normal
+maxIndex = 0  # x:0, y:1, z:2
+if normal.y > normal.x:
+    maxIndex++
+if normal.z > normal.x || normal.z > normal.y:
+    maxIndex++
+
+# 2: For vertex in polygon: project onto axis
+
+# 3: Project intersection point onto plane as well
+
+# 4: Translate everything so intersection point is in center
+for vert in vertices:
+    vert -= intersectionPoint
+
+intersectionPoint = 0
+
+# 5: numCrossings = 0
+numCrossings = 0
+
+# 6: If the y coord of the first vertex is < 0, signHolder = -1; else signHolder = 1
+
+# 7: Loop time
+for i in range(n-1):
+    if verts[i].y < 0:
+        nextSignHolder = -1
+    else:
+        nextSignHolder = 1
+
+    if signHolder == nextSignHolder:  # If they have the same sign
+        if (verts[i].x > 0) && (verts[i+1].x > 0):
+            numCrossings++
+        elif (verts[i].x > 0) || (verts[i+1].x > 0):
+            xCross =
+            if xCross > 0:
+                numCrossings++
+
+    signHolder = nextSignHolder
+
+# 8: If numCrossings % 2 != 0: point is inside polygon
+if numCrossings % 2 == 0:
+    return FLT_MAX
+else:
+    return intersectionPoint  # Or t, whatever
