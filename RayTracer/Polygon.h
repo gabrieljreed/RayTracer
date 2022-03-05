@@ -28,7 +28,7 @@ public:
 		this->Refl = Refl;
 	}
 
-	virtual float calculateIntersectionDistance(const Ray& ray) {
+	float calculateIntersectionDistance(const Ray& ray) {
 		// Calculate plane that ray lies on 
 		// Poly must have at least 3 verts 
 		if (vertices.size() > 3) { 
@@ -67,11 +67,21 @@ public:
 			ray.origin.y + ray.direction.y * planeIntersectionDistance,
 			ray.origin.z + ray.direction.z * planeIntersectionDistance);
 
+		if (pointInsidePolygon(intersectionPoint)) {
+			return planeIntersectionDistance;
+		}
+		else {
+			return FLT_MAX;
+		}
+	}
 
+	bool pointInsidePolygon(Vector intersectionPoint) {
 		// Ray-Polygon intersection 
 
+		Vector planeNormal = calculateSurfaceNormal(intersectionPoint);
+
 		// 1: Determine dominant coordinate of normal 
-		float dominantIndex = 0; // x:0, y:1, z:2
+		int dominantIndex = 0; // x:0, y:1, z:2
 		if (planeNormal.y > planeNormal.x) {
 			dominantIndex++;
 		}
@@ -80,14 +90,100 @@ public:
 		}
 
 		// 2: For vertex in polygon: project onto axis of dominant coordinate 
-
 		// 3: Project intersection point onto axis of dominant coordinate 
+		switch (dominantIndex) {
+		case 0:
+			for (unsigned int i = 0; i < vertices.size(); i++) {
+				vertices[i].x = vertices[i].y;
+				vertices[i].y = vertices[i].z;
+			}
 
-		return FLT_MAX;
+			intersectionPoint.x = intersectionPoint.y;
+			intersectionPoint.y = intersectionPoint.z;
+
+			break;
+		case 1:
+			for (unsigned int i = 0; i < vertices.size(); i++) {
+				vertices[i].y = vertices[i].z;
+			}
+
+			intersectionPoint.y = intersectionPoint.z;
+
+			break;
+		}
+
+		// 4: Translate everything so the intersection point is in the center 
+
+		for (unsigned int i = 0; i < vertices.size(); i++) {
+			vertices[i] -= intersectionPoint;
+		}
+
+		intersectionPoint = Vector(0, 0, 0); // FIXME: Do I maybe want to make this a new variable? 
+
+		// 5: Set numCrossings = 0
+		int numCrossings = 0;
+
+		// 6: Set signHolder to the sign of the first vertex 
+		int signHolder = 0;
+
+		if (vertices[0].y < 0) {
+			signHolder = -1;
+		}
+		else {
+			signHolder = 1;
+		}
+		int nextSignHolder = 0;
+
+		// 7: Loop time 
+
+		for (unsigned int i = 0; i < vertices.size(); i++) {
+			int k;
+			if (i == vertices.size() - 1) {
+				k = 0;
+			}
+			else {
+				k = i + 1;
+			}
+			if (vertices[k].y < 0) {
+				nextSignHolder = -1;
+			}
+			else {
+				nextSignHolder = 1;
+			}
+
+			if (signHolder != nextSignHolder) { // If they have the same sign 
+				if (vertices[i].x > 0 && vertices[k].x > 0) {
+					numCrossings++;
+				}
+				else if (vertices[i].x > 0 || vertices[k].x > 0) {
+					float xCross = vertices[i].x - vertices[i].y * (vertices[k].x - vertices[i].x) / (vertices[k].y - vertices[i].y);
+					if (xCross > 0) {
+						numCrossings++;
+					}
+				}
+			}
+
+			signHolder = nextSignHolder;
+		}
+
+		// 8: If numCrossings is odd, the point is inside the polygon 
+		if (numCrossings % 2 == 0) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
-	virtual Vector calculateSurfaceNormal(const Vector& intersectionPoint) {
-		return Vector(0, 0, 0);
+	Vector calculateSurfaceNormal(const Vector& intersectionPoint) {
+		if (vertices.size() > 3) {
+			return Vector(0, 0, 0);
+		}
+
+		Vector v1 = vertices[0] - vertices[1];
+		Vector v2 = vertices[2] - vertices[1];
+
+		return v1.cross(v1, v2);
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {

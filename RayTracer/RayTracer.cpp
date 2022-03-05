@@ -51,6 +51,20 @@ int main() {
     int dimensionX = 200;
     int dimensionY = 200;
 
+
+    // -----------------------------------------------------Testing-----------------------------------------------------
+
+    /*vector<Vector> verts2;
+    verts2.push_back(Vector(-3, -3, 7));
+    verts2.push_back(Vector(3, -4, 3));
+    verts2.push_back(Vector(4, -5, 4));
+    Polygon p1 = Polygon(verts2, 1, 1, 1, Vector(1, 1, 1), Vector(1, 1, 1), 1, 1);
+
+    bool b = p1.pointInsidePolygon(Vector(-2, -2, 4));
+    cout << b << endl;*/
+
+    // -----------------------------------------------------Testing-----------------------------------------------------
+
     renderFile << "P3" << endl << dimensionX << " " << dimensionY << endl << "255" << endl;
     for (int j = dimensionY - 1; j >= 0; j--) {
         for (int i = 0; i < dimensionX; i++) {
