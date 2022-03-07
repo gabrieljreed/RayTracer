@@ -31,6 +31,9 @@ public:
 	}
 
 	float calculateIntersectionDistance(const Ray& ray) {
+
+
+		/*
 		// Calculate plane that ray lies on 
 		Vector planeNormal = calculateSurfaceNormal(Vector(0, 0, 0));
 
@@ -69,6 +72,54 @@ public:
 		else {
 			return FLT_MAX;
 		}
+		*/
+
+
+
+
+
+
+
+
+		// Calculate normal 
+		Vector planeNormal = calculateSurfaceNormal(ray.direction);
+
+		// Check if ray and plane are parallel 
+		float rayDirection = planeNormal.dot(ray.direction);
+		if (abs(rayDirection) < E) {
+			return FLT_MAX;
+		}
+
+		// Distance (?)
+		float d = -planeNormal.dot(vertices[0]); // FIXME: I'm not sure if verts[0] is the correct one 
+
+		float t = -(planeNormal.dot(ray.origin) + d) / rayDirection;
+
+		if (t < 0) return FLT_MAX; // Triangle is behind ray 
+
+		Vector intersectionPoint = ray.origin + t * ray.direction;
+
+		Vector C;
+
+		// Edge 0
+		Vector edge0 = vertices[1] - vertices[0];
+		Vector V0 = intersectionPoint - vertices[0];
+		C = edge0.cross(edge0, V0);
+		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		// Edge 1 
+		Vector edge1 = vertices[2] - vertices[1];
+		Vector V1 = intersectionPoint - vertices[1];
+		C = edge1.cross(edge1, V1);
+		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		// Edge 2
+		Vector edge2 = vertices[0] - vertices[2];
+		Vector V2 = intersectionPoint - vertices[2];
+		C = edge2.cross(edge2, V2);
+		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		return t;
 	}
 
 	bool pointInsidePolygon(Vector intersectionPoint) {

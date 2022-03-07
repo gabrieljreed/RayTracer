@@ -33,9 +33,9 @@ int main() {
     Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(1, 1, 1), Vector(1, 1, 1), 4.0, 0.0);
 
     vector<Renderable*> objects;
-    //objects.push_back(&s1);
-    //objects.push_back(&t1);
-    //objects.push_back(&t2);
+    objects.push_back(&s1);
+    objects.push_back(&t1);
+    objects.push_back(&t2);
 
     // Lighting 
     Vector directionToLight = Vector(0, 1, 0);
@@ -55,8 +55,8 @@ int main() {
     float imagePlaneZ = 4;
 
     // Define output file resolution
-    int dimensionX = 3;
-    int dimensionY = 3;
+    int dimensionX = 200;
+    int dimensionY = dimensionX;
 
 
     // -----------------------------------------------------Testing-----------------------------------------------------
@@ -96,7 +96,7 @@ int main() {
 
 
 
-    objects.push_back(&p1);
+    // objects.push_back(&p1);
 
     // -----------------------------------------------------Testing-----------------------------------------------------
 

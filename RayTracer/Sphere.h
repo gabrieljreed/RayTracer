@@ -95,8 +95,6 @@ public:
 		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) *255;
 
 		Vector result = diffuse + ambient + specular;
-		//result = specular;
-		// result.clamp(255); // In theory, you shouldn't have to clamp 
 
 		return result;
 	}
