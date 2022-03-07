@@ -31,56 +31,6 @@ public:
 	}
 
 	float calculateIntersectionDistance(const Ray& ray) {
-
-
-		/*
-		// Calculate plane that ray lies on 
-		Vector planeNormal = calculateSurfaceNormal(Vector(0, 0, 0));
-
-		// Find distanceToPlane
-		float distanceToPlane = abs(planeNormal.x + planeNormal.y + planeNormal.z); 
-		
-		// Ray-Plane intersection 
-		float Vd = planeNormal.dot(ray.direction);
-
-		if (Vd >= 0) {
-			return FLT_MAX; // Ray is pointing away (>0) or parallel to plane (=0)
-		}
-
-		float Vo = -(planeNormal.dot(ray.origin) + distanceToPlane); // This is getting set to 0? 
-
-		float planeIntersectionDistance = Vo / Vd;
-
-		if (planeIntersectionDistance < 0) {
-			return FLT_MAX; // Point is behind ray 
-		}
-
-		if (Vd > 0) {
-			planeNormal *= -1; // Reverse plane normal 
-		}
-
-		// Calculate intersection point 
-		Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * planeIntersectionDistance,
-			ray.origin.y + ray.direction.y * planeIntersectionDistance,
-			ray.origin.z + ray.direction.z * planeIntersectionDistance);
-
-		cout << intersectionPoint << endl;
-		
-		if (pointInsidePolygon(intersectionPoint)) {
-			return planeIntersectionDistance;
-		}
-		else {
-			return FLT_MAX;
-		}
-		*/
-
-
-
-
-
-
-
-
 		// Calculate normal 
 		Vector planeNormal = calculateSurfaceNormal(ray.direction);
 
@@ -105,19 +55,19 @@ public:
 		Vector edge0 = vertices[1] - vertices[0];
 		Vector V0 = intersectionPoint - vertices[0];
 		C = edge0.cross(edge0, V0);
-		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
 
 		// Edge 1 
 		Vector edge1 = vertices[2] - vertices[1];
 		Vector V1 = intersectionPoint - vertices[1];
 		C = edge1.cross(edge1, V1);
-		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
 
 		// Edge 2
 		Vector edge2 = vertices[0] - vertices[2];
 		Vector V2 = intersectionPoint - vertices[2];
 		C = edge2.cross(edge2, V2);
-		if (planeNormal.dot(C) > 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
 
 		return t;
 	}
@@ -230,53 +180,30 @@ public:
 		Vector v1 = vertices[0] - vertices[1];
 		Vector v2 = vertices[2] - vertices[1];
 
-		return v1.cross(v1, v2);
+		return v1.cross(v2, v1);
 	}
 
-	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
-		return Vector(255.0, 255.0, 255.0);
-	}
+	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view, bool isInShadow) {
+		lightDirection.unitVector();
+		surfaceNormal.unitVector();
 
-	float calculateTriangleIntersection(const Ray& ray) {
-		// Calculate normal 
-		Vector planeNormal = calculateSurfaceNormal(ray.direction);
+		Vector result = Vector(0, 0, 0);
 
-		// Check if ray and plane are parallel 
-		float rayDirection = planeNormal.dot(ray.direction);
-		if (abs(rayDirection) < E) {
-			return FLT_MAX;
+		if (isInShadow) {  // The ray hit something else on the way to the light 
+			result = ambientIntensity * Ka * Od;
+		}
+		else {  // The ray didn't hit anything and is not in shadow 
+			Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection)); 
+
+			Vector ambient = ambientIntensity * Ka * Od;
+
+			Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
+			Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) * 255;
+
+			result = diffuse + ambient + specular;
 		}
 
-		// Distance (?)
-		float d = -planeNormal.dot(vertices[0]); // FIXME: I'm not sure if verts[0] is the correct one 
-
-		float t = -(planeNormal.dot(ray.origin) + d) / rayDirection;
-
-		if (t < 0) return FLT_MAX; // Triangle is behind ray 
-
-		Vector intersectionPoint = ray.origin + t * ray.direction;
-
-		Vector C;
-
-		// Edge 0
-		Vector edge0 = vertices[1] - vertices[0];
-		Vector V0 = intersectionPoint - vertices[0];
-		C = edge0.cross(edge0, V0);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
-
-		// Edge 1 
-		Vector edge1 = vertices[2] - vertices[1];
-		Vector V1 = intersectionPoint - vertices[1];
-		C = edge1.cross(edge1, V1);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
-
-		// Edge 2
-		Vector edge2 = vertices[0] - vertices[2];
-		Vector V2 = intersectionPoint - vertices[2];
-		C = edge2.cross(edge2, V2);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
-
-		return t;
+		return result;
 	}
 };
 

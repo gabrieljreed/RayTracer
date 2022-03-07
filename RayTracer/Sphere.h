@@ -84,17 +84,25 @@ public:
 			(intersectionPoint.z - center.z) / radius);
 	}
 
-	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
+	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view, bool isInShadow) {
 		lightDirection.unitVector();
 		surfaceNormal.unitVector();
-		Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection));
 
-		Vector ambient = ambientIntensity * Ka * Od;
+		Vector result = Vector(0, 0, 0);
 
-		Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
-		Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) *255;
+		if (isInShadow) {  // The ray hit something else on the way to the light 
+			result = ambientIntensity * Ka * Od;
+		}
+		else {  // The ray didn't hit anything and is not in shadow 
+			Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection));
 
-		Vector result = diffuse + ambient + specular;
+			Vector ambient = ambientIntensity * Ka * Od;
+
+			Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
+			Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) * 255;
+
+			result = diffuse + ambient + specular;
+		}
 
 		return result;
 	}

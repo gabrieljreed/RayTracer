@@ -15,11 +15,11 @@ public:
 		return Vector(0, 0, 0);
 	}
 
-	virtual Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
+	virtual Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view, bool isInShadow) {
 		return Vector(0, 0, 0);
 	}
 
-protected:
+
 	// Shading 
 	Vector Od, Os;
 	float Ka, Kd, Ks, kGls, Refl;

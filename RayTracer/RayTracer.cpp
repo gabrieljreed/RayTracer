@@ -12,33 +12,64 @@
 
 using namespace std;
 
+Vector traceRay(const Ray& ray, const vector<Renderable*>& objects);
+
 int main() {
     ofstream renderFile("renderFile.ppm");
 
     const float pi = 3.14159265358979323846;
 
     // Render objects
+    vector<Renderable*> objects;
+
+    // SCENE 1
     Sphere s1 = Sphere(Vector(0, 0.3, -1.0), 0.25, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 1.0);
 
     vector<Vector> verts;
     verts.push_back(Vector(0.0, -0.7, -0.5));
     verts.push_back(Vector(1.0, 0.4, -1.0));
     verts.push_back(Vector(0.0, -0.7, -1.5));
-    Polygon t1 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 1.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
+    Polygon t1 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 255.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
 
     verts.clear();
     verts.push_back(Vector(0.0, -0.7, -0.5));
     verts.push_back(Vector(0.0, -0.7, -1.5));
     verts.push_back(Vector(-1.0, 0.4, -1.0));
-    Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(1, 1, 1), Vector(1, 1, 1), 4.0, 0.0);
+    Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4.0, 0.0);
 
-    vector<Renderable*> objects;
-    objects.push_back(&s1);
+    
+    /*objects.push_back(&s1);
     objects.push_back(&t1);
-    objects.push_back(&t2);
+    objects.push_back(&t2);*/
+
+    // SCENE 2
+    Sphere s2 = Sphere(Vector(0.5, 0.0, -0.15), 0.05, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 0.0);
+    Sphere s3 = Sphere(Vector(0.3, 0.0, -0.1), 0.08, Vector(255, 0, 0), Vector(0.5, 1.0, 0.5), 0.8, 0.8, 0.1, 32.0, 0.0);
+    Sphere s4 = Sphere(Vector(-0.6, 0.0, 0.0), 0.3, Vector(0.0, 255, 0.0), Vector(0.5, 1.0, 0.5), 0.7, 0.6, 0.1, 64.0, 0.0);
+    Sphere s5 = Sphere(Vector(0.1, -0.66, 0.25), 0.3, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
+
+    verts.clear();
+    verts.push_back(Vector(0.3, -0.3, -0.4));
+    verts.push_back(Vector(0.0, 0.3, -0.1));
+    verts.push_back(Vector(-0.3, -0.3, 0.2));
+    Polygon t3 = Polygon(verts, 0.9, 0.9, 0.1, Vector(0, 0, 255), Vector(1, 1, 1), 32.0, 0.0);
+
+    verts.clear();
+    verts.push_back(Vector(-0.2, 0.1, 0.1));
+    verts.push_back(Vector(-0.2, -0.5, 0.2));
+    verts.push_back(Vector(-0.2, 0.1, -0.3));
+    Polygon t4 = Polygon(verts, 0.9, 0.5, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4, 0);
+
+    //objects.push_back(&s2);
+    objects.push_back(&s3);
+    objects.push_back(&s4);
+    objects.push_back(&s5);
+    objects.push_back(&t3);
+    objects.push_back(&t4);
+
 
     // Lighting 
-    Vector directionToLight = Vector(0, 1, 0);
+    Vector directionToLight = Vector(1, 0, 0);
     Vector lightColor = Vector(1, 1, 1);
     Vector ambientLighting = Vector(0.1, 0.1, 0.1);
 
@@ -55,7 +86,7 @@ int main() {
     float imagePlaneZ = 4;
 
     // Define output file resolution
-    int dimensionX = 200;
+    int dimensionX = 300;
     int dimensionY = dimensionX;
 
 
@@ -67,34 +98,6 @@ int main() {
     verts2.push_back(Vector(1, -1, -2));
     
     Polygon p1 = Polygon(verts2, 1, 1, 1, Vector(1, 1, 1), Vector(1, 1, 1), 1, 1);
-
-    /*bool b = p1.pointInsidePolygon(Vector(0, 0, 1));
-    cout << b << endl;
-
-
-    Ray r = Ray(Vector(0, 0, 10), Vector(0, 0, -1));
-    p1.calculateIntersectionDistance(r);*/
-
-    /*bool b = p1.pointInsidePolygon(Vector(0.19952, 0.79808, -1));
-    cout << b << endl;
-    b = p1.pointInsidePolygon(Vector(0, 0, -1));
-    cout << b << endl;*/
-    /*bool b = p1.pointInsidePolygon(Vector(-0.19952, -0.39904, -1));
-    if (b) {
-        cout << "True" << endl;
-    }*/
-
-    Vector origin = Vector(0, 0, 1);
-
-    Vector direction = Vector(0, 0, -1);
-    direction.unitVector();
-
-    Ray r = Ray(origin, direction);
-
-    float f = p1.calculateIntersectionDistance(r);
-    cout << f << endl;
-
-
 
     // objects.push_back(&p1);
 
@@ -115,7 +118,6 @@ int main() {
             Renderable* closestObject = NULL; 
             float objDist = FLT_MAX;
             for (unsigned int k = 0; k < objects.size(); k++) {
-                //float temp = computeIntersectionDistance(objects[k], ray);
                 float temp = objects[k]->calculateIntersectionDistance(ray);
                 if (temp < objDist) {
                     closestObject = objects[k];
@@ -136,11 +138,64 @@ int main() {
                 // 8 - Calculate surface normal 
                 Vector surfaceNormal = closestObject->calculateSurfaceNormal(intersectionPoint);
 
+                // Calculate shadow rays 
+                bool isInShadow = false;
+                Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
+                Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
+                for (unsigned int k = 0; k < objects.size(); k++) {
+                    float temp = objects[k]->calculateIntersectionDistance(shadowRay);
+                    if (temp < FLT_MAX) isInShadow = true;
+                }
+
+                // Calculate reflection rays 
+                if (closestObject->kGls > 0) {
+                    Vector reflectionDirection = 2 * surfaceNormal * surfaceNormal.dot(directionToLight) - directionToLight;
+                    Vector reflectionOrigin = intersectionPoint + reflectionDirection * 0.001;
+                    Ray reflectionRay = Ray(reflectionOrigin, reflectionDirection);
+
+                    Renderable* closestObject = NULL;
+                    float objDist = FLT_MAX;
+                    for (unsigned int k = 0; k < objects.size(); k++) {
+                        float temp = objects[k]->calculateIntersectionDistance(ray);
+                        if (temp < objDist) {
+                            closestObject = objects[k];
+                            objDist = temp;
+                        }
+                    }
+
+                    if (objDist == FLT_MAX) {
+                        // Background color 
+                    }
+                    else if (closestObject != NULL) {
+                        // Calculate that object's color 
+                        // 7 - Calculate intersection point 
+                        Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * objDist,
+                            ray.origin.y + ray.direction.y * objDist,
+                            ray.origin.z + ray.direction.z * objDist);
+
+                        // 8 - Calculate surface normal 
+                        Vector surfaceNormal = closestObject->calculateSurfaceNormal(intersectionPoint);
+
+                        // Calculate shadow rays 
+                        bool isInShadow = false;
+                        Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
+                        Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
+                        for (unsigned int k = 0; k < objects.size(); k++) {
+                            float temp = objects[k]->calculateIntersectionDistance(shadowRay);
+                            if (temp < FLT_MAX) isInShadow = true;
+                        }
+                    }
+                }
+
                 // Write color to renderFile 
-                renderFile << closestObject->calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction).toString() << endl;
+                renderFile << closestObject->calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction, isInShadow).toString() << endl;
             }
         }
     }
 
     renderFile.close();
+}
+
+Vector traceRay(const Ray& ray, const vector<Renderable*>& objects) {
+    return Vector(0, 0, 0);
 }
