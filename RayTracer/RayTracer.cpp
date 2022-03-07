@@ -85,20 +85,18 @@ int main() {
         objects.push_back(&t1);
         objects.push_back(&t2);
 
-        directionToLight = Vector(1, 0, 0);
-    }
-    else {
-        objects.push_back(&s2);
-        objects.push_back(&s3);
-        objects.push_back(&s4);
-        objects.push_back(&s5);
-        objects.push_back(&t3);
-        objects.push_back(&t4);
-
         directionToLight = Vector(0, 1, 0);
     }
+    else {
+        /*objects.push_back(&s2);
+        objects.push_back(&s3);
+        objects.push_back(&s4);
+        objects.push_back(&s5);*/
+        objects.push_back(&t3);
+        //objects.push_back(&t4);
 
-    directionToLight = Vector(0, 1, 0);
+        directionToLight = Vector(1, 0, 0);
+    }
 
 
     // -----------------------------------------------------Testing-----------------------------------------------------
