@@ -45,7 +45,7 @@ public:
 		}
 
 		// Distance (?)
-		float d = -planeNormal.dot(vertices[0]); // FIXME: I'm not sure if verts[0] is the correct one 
+		float d = -planeNormal.dot(vertices[0]); 
 
 		float t = -(planeNormal.dot(ray.origin) + d) / rayDirection;
 
@@ -59,19 +59,19 @@ public:
 		Vector edge0 = vertices[1] - vertices[0];
 		Vector V0 = intersectionPoint - vertices[0];
 		C = edge0.cross(edge0, V0);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; 
 
 		// Edge 1 
 		Vector edge1 = vertices[2] - vertices[1];
 		Vector V1 = intersectionPoint - vertices[1];
 		C = edge1.cross(edge1, V1);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; 
 
 		// Edge 2
 		Vector edge2 = vertices[0] - vertices[2];
 		Vector V2 = intersectionPoint - vertices[2];
 		C = edge2.cross(edge2, V2);
-		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+		if (planeNormal.dot(C) < 0) return FLT_MAX; 
 
 		return t;
 	}

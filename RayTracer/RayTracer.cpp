@@ -23,7 +23,8 @@ int main() {
     vector<Renderable*> objects;
 
     // SCENE 1
-    Sphere s1 = Sphere(Vector(0, 0.3, -1.0), 0.25, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 1.0);
+    //Sphere s1 = Sphere(Vector(0, 0.3, -1.0), 0.25, Vector(191, 191, 191), Vector(1, 1, 1), 0.8, 0.1, 0.3, 10.0, 1.0);
+    Sphere s1 = Sphere(Vector(0.0, 0.3, -1.0), 0.25, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
 
     vector<Vector> verts;
     verts.push_back(Vector(0.0, -0.7, -0.5));
@@ -37,16 +38,11 @@ int main() {
     verts.push_back(Vector(-1.0, 0.4, -1.0));
     Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4.0, 0.0);
 
-    
-    objects.push_back(&s1);
-    objects.push_back(&t1);
-    objects.push_back(&t2);
-
     // SCENE 2
     Sphere s2 = Sphere(Vector(0.5, 0.0, -0.15), 0.05, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 0.0);
     Sphere s3 = Sphere(Vector(0.3, 0.0, -0.1), 0.08, Vector(255, 0, 0), Vector(0.5, 1.0, 0.5), 0.8, 0.8, 0.1, 32.0, 0.0);
     Sphere s4 = Sphere(Vector(-0.6, 0.0, 0.0), 0.3, Vector(0.0, 255, 0.0), Vector(0.5, 1.0, 0.5), 0.7, 0.6, 0.1, 64.0, 0.0);
-    Sphere s5 = Sphere(Vector(0.1, -0.66, 0.25), 0.3, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
+    Sphere s5 = Sphere(Vector(0.1, -0.55, 0.25), 0.3, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
 
     verts.clear();
     verts.push_back(Vector(0.3, -0.3, -0.4));
@@ -60,14 +56,6 @@ int main() {
     verts.push_back(Vector(-0.2, 0.1, -0.3));
     Polygon t4 = Polygon(verts, 0.9, 0.5, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4, 0);
 
-    /*objects.push_back(&s2);
-    objects.push_back(&s3);
-    objects.push_back(&s4);
-    objects.push_back(&s5);
-    objects.push_back(&t3);
-    objects.push_back(&t4);*/
-
-
     // Lighting 
     Vector directionToLight = Vector(0, 1, 0);
     Vector lightColor = Vector(1, 1, 1);
@@ -80,7 +68,8 @@ int main() {
 
     // Camera setup 
     Vector cameraOrigin = Vector(0, 0, 1);
-    float FOV = 90.0;
+    float FOV = 60.0;
+    FOV *= 180 / pi;
     float imagePlaneX = abs(tan(FOV));
     float imagePlaneY = abs(tan(FOV));
     float imagePlaneZ = 4;
@@ -88,6 +77,28 @@ int main() {
     // Define output file resolution
     int dimensionX = 400;
     int dimensionY = dimensionX;
+
+    bool scene1 = false;
+
+    if (scene1) {
+        objects.push_back(&s1);
+        objects.push_back(&t1);
+        objects.push_back(&t2);
+
+        directionToLight = Vector(1, 0, 0);
+    }
+    else {
+        objects.push_back(&s2);
+        objects.push_back(&s3);
+        objects.push_back(&s4);
+        objects.push_back(&s5);
+        objects.push_back(&t3);
+        objects.push_back(&t4);
+
+        directionToLight = Vector(0, 1, 0);
+    }
+
+    directionToLight = Vector(0, 1, 0);
 
 
     // -----------------------------------------------------Testing-----------------------------------------------------
@@ -151,7 +162,7 @@ Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector direc
 
         // Calculate shadow rays 
         bool isInShadow = false;
-        Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
+        Vector shadowRayOrigin = intersectionPoint + surfaceNormal * 0.001;
         Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
         for (unsigned int k = 0; k < objects.size(); k++) {
             float temp = objects[k]->calculateIntersectionDistance(shadowRay);
@@ -165,7 +176,7 @@ Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector direc
             reflectionBounces--;
             Vector reflectionRayDirection = 2 * surfaceNormal * surfaceNormal.dot(ray.direction) - ray.direction;
             //cout << reflectionRayDirection << endl;
-            Vector reflectionRayOrigin = intersectionPoint + reflectionRayDirection * 0.001;
+            Vector reflectionRayOrigin = intersectionPoint + surfaceNormal * 0.001;
 
             Ray reflectionRay = Ray(reflectionRayOrigin, reflectionRayDirection);
 
