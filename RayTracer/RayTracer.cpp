@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Vector traceRay(const Ray& ray, const vector<Renderable*>& objects);
+Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector directionToLight, Vector ambientLighting, Vector lightColor, Vector backgroundColor, int reflectionBounces);
 
 int main() {
     ofstream renderFile("renderFile.ppm");
@@ -38,9 +38,9 @@ int main() {
     Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4.0, 0.0);
 
     
-    /*objects.push_back(&s1);
+    objects.push_back(&s1);
     objects.push_back(&t1);
-    objects.push_back(&t2);*/
+    objects.push_back(&t2);
 
     // SCENE 2
     Sphere s2 = Sphere(Vector(0.5, 0.0, -0.15), 0.05, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 0.0);
@@ -60,16 +60,16 @@ int main() {
     verts.push_back(Vector(-0.2, 0.1, -0.3));
     Polygon t4 = Polygon(verts, 0.9, 0.5, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4, 0);
 
-    //objects.push_back(&s2);
+    /*objects.push_back(&s2);
     objects.push_back(&s3);
     objects.push_back(&s4);
     objects.push_back(&s5);
     objects.push_back(&t3);
-    objects.push_back(&t4);
+    objects.push_back(&t4);*/
 
 
     // Lighting 
-    Vector directionToLight = Vector(1, 0, 0);
+    Vector directionToLight = Vector(0, 1, 0);
     Vector lightColor = Vector(1, 1, 1);
     Vector ambientLighting = Vector(0.1, 0.1, 0.1);
 
@@ -86,7 +86,7 @@ int main() {
     float imagePlaneZ = 4;
 
     // Define output file resolution
-    int dimensionX = 300;
+    int dimensionX = 400;
     int dimensionY = dimensionX;
 
 
@@ -112,90 +112,67 @@ int main() {
             Vector direction = Vector(x, y, -1); 
             direction.unitVector();
 
-            Ray ray = Ray(cameraOrigin, direction); // Ray from camera through each pixel 
+            Ray ray = Ray(cameraOrigin, direction, 1); // Ray from camera through each pixel 
 
-            // Find closest object along ray 
-            Renderable* closestObject = NULL; 
-            float objDist = FLT_MAX;
-            for (unsigned int k = 0; k < objects.size(); k++) {
-                float temp = objects[k]->calculateIntersectionDistance(ray);
-                if (temp < objDist) {
-                    closestObject = objects[k];
-                    objDist = temp;
-                }
-            }
+            Vector color = traceRay(ray, objects, directionToLight, ambientLighting, lightColor, backgroundColor, 1);
 
-            if (objDist == FLT_MAX) {
-                // Nothing was hit 
-                renderFile << backgroundColor.toString() << endl;
-            }
-            else if (closestObject != NULL) {
-                // 7 - Calculate intersection point 
-                Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * objDist,
-                    ray.origin.y + ray.direction.y * objDist,
-                    ray.origin.z + ray.direction.z * objDist);
-
-                // 8 - Calculate surface normal 
-                Vector surfaceNormal = closestObject->calculateSurfaceNormal(intersectionPoint);
-
-                // Calculate shadow rays 
-                bool isInShadow = false;
-                Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
-                Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
-                for (unsigned int k = 0; k < objects.size(); k++) {
-                    float temp = objects[k]->calculateIntersectionDistance(shadowRay);
-                    if (temp < FLT_MAX) isInShadow = true;
-                }
-
-                // Calculate reflection rays 
-                if (closestObject->kGls > 0) {
-                    Vector reflectionDirection = 2 * surfaceNormal * surfaceNormal.dot(directionToLight) - directionToLight;
-                    Vector reflectionOrigin = intersectionPoint + reflectionDirection * 0.001;
-                    Ray reflectionRay = Ray(reflectionOrigin, reflectionDirection);
-
-                    Renderable* closestObject = NULL;
-                    float objDist = FLT_MAX;
-                    for (unsigned int k = 0; k < objects.size(); k++) {
-                        float temp = objects[k]->calculateIntersectionDistance(ray);
-                        if (temp < objDist) {
-                            closestObject = objects[k];
-                            objDist = temp;
-                        }
-                    }
-
-                    if (objDist == FLT_MAX) {
-                        // Background color 
-                    }
-                    else if (closestObject != NULL) {
-                        // Calculate that object's color 
-                        // 7 - Calculate intersection point 
-                        Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * objDist,
-                            ray.origin.y + ray.direction.y * objDist,
-                            ray.origin.z + ray.direction.z * objDist);
-
-                        // 8 - Calculate surface normal 
-                        Vector surfaceNormal = closestObject->calculateSurfaceNormal(intersectionPoint);
-
-                        // Calculate shadow rays 
-                        bool isInShadow = false;
-                        Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
-                        Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
-                        for (unsigned int k = 0; k < objects.size(); k++) {
-                            float temp = objects[k]->calculateIntersectionDistance(shadowRay);
-                            if (temp < FLT_MAX) isInShadow = true;
-                        }
-                    }
-                }
-
-                // Write color to renderFile 
-                renderFile << closestObject->calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction, isInShadow).toString() << endl;
-            }
+            // Write color to renderFile 
+            renderFile << color.toString() << endl;
         }
     }
 
     renderFile.close();
 }
 
-Vector traceRay(const Ray& ray, const vector<Renderable*>& objects) {
-    return Vector(0, 0, 0);
+Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector directionToLight, Vector ambientLighting, Vector lightColor, Vector backgroundColor, int reflectionBounces) {
+    // Find closest object along ray 
+    Renderable* closestObject = NULL;
+    float objDist = FLT_MAX;
+    for (unsigned int k = 0; k < objects.size(); k++) {
+        float temp = objects[k]->calculateIntersectionDistance(ray);
+        if (temp < objDist) {
+            closestObject = objects[k];
+            objDist = temp;
+        }
+    }
+
+    if (objDist == FLT_MAX) {
+        // Nothing was hit 
+        return backgroundColor;
+    }
+    else if (closestObject != NULL) {
+        // 7 - Calculate intersection point 
+        Vector intersectionPoint = Vector(ray.origin.x + ray.direction.x * objDist,
+            ray.origin.y + ray.direction.y * objDist,
+            ray.origin.z + ray.direction.z * objDist);
+
+        // 8 - Calculate surface normal 
+        Vector surfaceNormal = closestObject->calculateSurfaceNormal(intersectionPoint);
+
+        // Calculate shadow rays 
+        bool isInShadow = false;
+        Vector shadowRayOrigin = intersectionPoint + directionToLight * 0.001;
+        Ray shadowRay = Ray(shadowRayOrigin, directionToLight);
+        for (unsigned int k = 0; k < objects.size(); k++) {
+            float temp = objects[k]->calculateIntersectionDistance(shadowRay);
+            if (temp < FLT_MAX) isInShadow = true;
+        }
+
+        // Calculate reflection rays 
+        Vector reflectedColor = Vector(0, 0, 0);
+        float refl = closestObject->getRefl(); 
+        if (refl > 0 && reflectionBounces > 0) {
+            reflectionBounces--;
+            Vector reflectionRayDirection = 2 * surfaceNormal * surfaceNormal.dot(ray.direction) - ray.direction;
+            //cout << reflectionRayDirection << endl;
+            Vector reflectionRayOrigin = intersectionPoint + reflectionRayDirection * 0.001;
+
+            Ray reflectionRay = Ray(reflectionRayOrigin, reflectionRayDirection);
+
+            reflectedColor = traceRay(reflectionRay, objects, directionToLight, ambientLighting, lightColor, backgroundColor, reflectionBounces) * refl;
+        }
+
+        // Write color to renderFile 
+        return closestObject->calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction, isInShadow) + reflectedColor;
+    }
 }

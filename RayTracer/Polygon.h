@@ -16,7 +16,7 @@ public:
 	Vector Od, Os;
 	float Ka, Kd, Ks, kGls, Refl;
 
-	float E = 0.00001;
+	float E = 0.0;
 
 	Polygon() {}
 	Polygon(vector<Vector> vertices, float Kd, float Ks, float Ka, Vector Od, Vector Os, float kGls, float Refl) {
@@ -28,6 +28,10 @@ public:
 		this->Os = Os;
 		this->kGls = kGls;
 		this->Refl = Refl;
+	}
+
+	float getRefl() {
+		return Refl;
 	}
 
 	float calculateIntersectionDistance(const Ray& ray) {

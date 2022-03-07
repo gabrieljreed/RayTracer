@@ -39,6 +39,10 @@ public:
 		Renderable::Refl = Refl; 
 	}
 
+	float getRefl() {
+		return Refl;
+	}
+
 	float calculateIntersectionDistance(const Ray& ray) {
 		Vector OC = center - ray.origin;
 		// 1 - Determine if the ray origin is inside the sphere 

@@ -19,6 +19,10 @@ public:
 		return Vector(0, 0, 0);
 	}
 
+	virtual float getRefl() {
+		return Refl;
+	}
+
 
 	// Shading 
 	Vector Od, Os;
