@@ -16,6 +16,8 @@ public:
 	Vector Od, Os;
 	float Ka, Kd, Ks, kGls, Refl;
 
+	float E = 0.00001;
+
 	Polygon() {}
 	Polygon(vector<Vector> vertices, float Kd, float Ks, float Ka, Vector Od, Vector Os, float kGls, float Refl) {
 		this->vertices = vertices;
@@ -30,18 +32,10 @@ public:
 
 	float calculateIntersectionDistance(const Ray& ray) {
 		// Calculate plane that ray lies on 
-		// Poly must have at least 3 verts 
-		if (vertices.size() > 3) { 
-			return FLT_MAX;
-		}
-
-		Vector v1 = vertices[0] - vertices[1];
-		Vector v2 = vertices[2] - vertices[1];
-
-		Vector planeNormal = v1.cross(v2, v1);
+		Vector planeNormal = calculateSurfaceNormal(Vector(0, 0, 0));
 
 		// Find distanceToPlane
-		float distanceToPlane = -(planeNormal.x + planeNormal.y + planeNormal.z);
+		float distanceToPlane = abs(planeNormal.x + planeNormal.y + planeNormal.z); 
 		
 		// Ray-Plane intersection 
 		float Vd = planeNormal.dot(ray.direction);
@@ -50,7 +44,7 @@ public:
 			return FLT_MAX; // Ray is pointing away (>0) or parallel to plane (=0)
 		}
 
-		float Vo = -(planeNormal.dot(ray.origin) + distanceToPlane);
+		float Vo = -(planeNormal.dot(ray.origin) + distanceToPlane); // This is getting set to 0? 
 
 		float planeIntersectionDistance = Vo / Vd;
 
@@ -67,6 +61,8 @@ public:
 			ray.origin.y + ray.direction.y * planeIntersectionDistance,
 			ray.origin.z + ray.direction.z * planeIntersectionDistance);
 
+		cout << intersectionPoint << endl;
+		
 		if (pointInsidePolygon(intersectionPoint)) {
 			return planeIntersectionDistance;
 		}
@@ -82,11 +78,11 @@ public:
 
 		// 1: Determine dominant coordinate of normal 
 		int dominantIndex = 0; // x:0, y:1, z:2
-		if (planeNormal.y > planeNormal.x) {
-			dominantIndex++;
+		if (abs(planeNormal.y) > abs(planeNormal.x)) {
+			dominantIndex = 1;
 		}
-		if (planeNormal.z > planeNormal.x || planeNormal.z > planeNormal.y) {
-			dominantIndex++;
+		if (abs(planeNormal.z) > abs(planeNormal.x) || abs(planeNormal.z) > abs(planeNormal.y)) {
+			dominantIndex = 2;
 		}
 
 		// 2: For vertex in polygon: project onto axis of dominant coordinate 
@@ -118,7 +114,7 @@ public:
 			vertices[i] -= intersectionPoint;
 		}
 
-		intersectionPoint = Vector(0, 0, 0); // FIXME: Do I maybe want to make this a new variable? 
+		//intersectionPoint = Vector(0, 0, 0); // FIXME: Do I maybe want to make this a new variable? 
 
 		// 5: Set numCrossings = 0
 		int numCrossings = 0;
@@ -187,7 +183,49 @@ public:
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view) {
-		return Vector(0.0, 0.0, 0.0);
+		return Vector(255.0, 255.0, 255.0);
+	}
+
+	float calculateTriangleIntersection(const Ray& ray) {
+		// Calculate normal 
+		Vector planeNormal = calculateSurfaceNormal(ray.direction);
+
+		// Check if ray and plane are parallel 
+		float rayDirection = planeNormal.dot(ray.direction);
+		if (abs(rayDirection) < E) {
+			return FLT_MAX;
+		}
+
+		// Distance (?)
+		float d = -planeNormal.dot(vertices[0]); // FIXME: I'm not sure if verts[0] is the correct one 
+
+		float t = -(planeNormal.dot(ray.origin) + d) / rayDirection;
+
+		if (t < 0) return FLT_MAX; // Triangle is behind ray 
+
+		Vector intersectionPoint = ray.origin + t * ray.direction;
+
+		Vector C;
+
+		// Edge 0
+		Vector edge0 = vertices[1] - vertices[0];
+		Vector V0 = intersectionPoint - vertices[0];
+		C = edge0.cross(edge0, V0);
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		// Edge 1 
+		Vector edge1 = vertices[2] - vertices[1];
+		Vector V1 = intersectionPoint - vertices[1];
+		C = edge1.cross(edge1, V1);
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		// Edge 2
+		Vector edge2 = vertices[0] - vertices[2];
+		Vector V2 = intersectionPoint - vertices[2];
+		C = edge2.cross(edge2, V2);
+		if (planeNormal.dot(C) < 0) return FLT_MAX; // intersectionPoint is on the right side 
+
+		return t;
 	}
 };
 

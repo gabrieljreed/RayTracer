@@ -18,7 +18,7 @@ int main() {
     const float pi = 3.14159265358979323846;
 
     // Render objects
-    Sphere s1 = Sphere(Vector(0, 0, 0), 0.15, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 1.0);
+    Sphere s1 = Sphere(Vector(0, 0.3, -1.0), 0.25, Vector(255, 255, 255), Vector(1, 1, 1), 0.8, 0.1, 0.3, 4.0, 1.0);
 
     vector<Vector> verts;
     verts.push_back(Vector(0.0, -0.7, -0.5));
@@ -26,12 +26,19 @@ int main() {
     verts.push_back(Vector(0.0, -0.7, -1.5));
     Polygon t1 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 1.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
 
+    verts.clear();
+    verts.push_back(Vector(0.0, -0.7, -0.5));
+    verts.push_back(Vector(0.0, -0.7, -1.5));
+    verts.push_back(Vector(-1.0, 0.4, -1.0));
+    Polygon t2 = Polygon(verts, 0.9, 1.0, 0.1, Vector(1, 1, 1), Vector(1, 1, 1), 4.0, 0.0);
+
     vector<Renderable*> objects;
-    objects.push_back(&s1);
-    //objects.push_back(t1);
+    //objects.push_back(&s1);
+    //objects.push_back(&t1);
+    //objects.push_back(&t2);
 
     // Lighting 
-    Vector directionToLight = Vector(1, 1, -1);
+    Vector directionToLight = Vector(0, 1, 0);
     Vector lightColor = Vector(1, 1, 1);
     Vector ambientLighting = Vector(0.1, 0.1, 0.1);
 
@@ -48,20 +55,48 @@ int main() {
     float imagePlaneZ = 4;
 
     // Define output file resolution
-    int dimensionX = 200;
-    int dimensionY = 200;
+    int dimensionX = 3;
+    int dimensionY = 3;
 
 
     // -----------------------------------------------------Testing-----------------------------------------------------
 
-    /*vector<Vector> verts2;
-    verts2.push_back(Vector(-3, -3, 7));
-    verts2.push_back(Vector(3, -4, 3));
-    verts2.push_back(Vector(4, -5, 4));
+    vector<Vector> verts2;
+    verts2.push_back(Vector(-1, -1, -2));
+    verts2.push_back(Vector(0, 1, -2));
+    verts2.push_back(Vector(1, -1, -2));
+    
     Polygon p1 = Polygon(verts2, 1, 1, 1, Vector(1, 1, 1), Vector(1, 1, 1), 1, 1);
 
-    bool b = p1.pointInsidePolygon(Vector(-2, -2, 4));
+    /*bool b = p1.pointInsidePolygon(Vector(0, 0, 1));
+    cout << b << endl;
+
+
+    Ray r = Ray(Vector(0, 0, 10), Vector(0, 0, -1));
+    p1.calculateIntersectionDistance(r);*/
+
+    /*bool b = p1.pointInsidePolygon(Vector(0.19952, 0.79808, -1));
+    cout << b << endl;
+    b = p1.pointInsidePolygon(Vector(0, 0, -1));
     cout << b << endl;*/
+    /*bool b = p1.pointInsidePolygon(Vector(-0.19952, -0.39904, -1));
+    if (b) {
+        cout << "True" << endl;
+    }*/
+
+    Vector origin = Vector(0, 0, 1);
+
+    Vector direction = Vector(0, 0, -1);
+    direction.unitVector();
+
+    Ray r = Ray(origin, direction);
+
+    float f = p1.calculateIntersectionDistance(r);
+    cout << f << endl;
+
+
+
+    objects.push_back(&p1);
 
     // -----------------------------------------------------Testing-----------------------------------------------------
 
