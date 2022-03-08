@@ -57,6 +57,26 @@ int main() {
     verts.push_back(Vector(-0.2, 0.1, -0.3));
     Polygon t4 = Polygon(verts, 0.9, 0.5, 0.1, Vector(255, 255, 0), Vector(1, 1, 1), 4, 0);
 
+    // SCENE 3
+    verts.clear();
+    verts.push_back(Vector(0.0, -1.7, -0.5));
+    verts.push_back(Vector(1.0, 0.4, -1.0));
+    verts.push_back(Vector(0.0, -1.7, -1.5));
+    Polygon t5 = Polygon(verts, 0.9, 1.0, 0.1, Vector(0.0, 0.0, 255.0), Vector(1.0, 1.0, 1.0), 4.0, 0.0);
+
+    verts.clear();
+    verts.push_back(Vector(-0.4, 0.1, 0.1));
+    verts.push_back(Vector(-0.3, 0.1, -0.3));
+    verts.push_back(Vector(-0.4, -0.5, 0.2));
+    Polygon t6 = Polygon(verts, 0.9, 0.5, 0.1, Vector(255, 0, 255), Vector(1, 1, 1), 4, 0);
+
+    Sphere s6 = Sphere(Vector(1, 1, 1), 0.5, Vector(255, 0, 0), Vector(0.5, 1.0, 0.5), 0.8, 0.8, 0.1, 32.0, 0.0);
+
+    Sphere s7 = Sphere(Vector(-0.1, 0.1, 0.1), 0.15, Vector(191, 0, 0), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
+    Sphere s8 = Sphere(Vector(0.2, -0.1, 0.3), 0.15, Vector(0, 191, 0), Vector(1, 1, 1), 0.5, 0.1, 0.1, 10.0, 0.9);
+
+    Sphere s9 = Sphere(Vector(-0.05, -0.1, 0.24), 0.07, Vector(150, 150, 150), Vector(0.5, 1.0, 0.5), 0.8, 0.8, 0.1, 32.0, 0.0);
+
     // Lighting 
     Vector directionToLight = Vector(0, 1, 0);
     Vector lightColor = Vector(1, 1, 1);
@@ -80,8 +100,8 @@ int main() {
     int dimensionY = dimensionX;
 
     bool scene1 = false;
-    bool scene2 = true;
-    bool testScene = false;
+    bool scene2 = false;
+    bool testScene = true;
 
     if (scene1) {
         objects.push_back(&s1);
@@ -102,26 +122,14 @@ int main() {
         directionToLight = Vector(1, 0, 0);
     }
     else if (testScene) {
-        Sphere sph = Sphere(Vector(0, 0, 0), 0.25, Vector(255, 255, 255), Vector(1, 1, 1), 1, 1, 1, 4, 0.0);
-        objects.push_back(&sph);
-        directionToLight = Vector(1, 1, 0);
+        objects.push_back(&t5);
+        objects.push_back(&t6);
+        objects.push_back(&s6);
+        objects.push_back(&s7);
+        objects.push_back(&s8);
+        objects.push_back(&s9);
+        directionToLight = Vector(-1, 0, 0);
     }
-
-
-    // -----------------------------------------------------Testing-----------------------------------------------------
-
-    vector<Vector> verts2;
-    verts2.push_back(Vector(-1, -1, -2));
-    verts2.push_back(Vector(0, 1, -2));
-    verts2.push_back(Vector(1, -1, -2));
-    
-    Polygon p1 = Polygon(verts2, 1, 1, 1, Vector(1, 1, 1), Vector(1, 1, 1), 1, 1);
-
-    // objects.push_back(&p1);
-
-    // -----------------------------------------------------Testing-----------------------------------------------------
-
-    int counter = 0;
 
     renderFile << "P3" << endl << dimensionX << " " << dimensionY << endl << "255" << endl;
     for (int j = dimensionY - 1; j >= 0; j--) {
@@ -134,20 +142,7 @@ int main() {
 
             Ray ray = Ray(cameraOrigin, direction, 1); // Ray from camera through each pixel 
 
-            counter++;
-
-            //if (i == 167 && j == 243) {
-            //    //color = Vector(255, 255, 255);
-            //    cout << counter << endl;
-            //}
-
-            Vector color = traceRay(ray, objects, directionToLight, ambientLighting, lightColor, backgroundColor, 1);
-
-            /*if (i == 167 && j == 243) {
-                color = Vector(255, 0, 0);
-            }*/
-
-            
+            Vector color = traceRay(ray, objects, directionToLight, ambientLighting, lightColor, backgroundColor, 3);
 
             // Write color to renderFile 
             renderFile << color.toString() << endl;
