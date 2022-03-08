@@ -135,12 +135,16 @@ int main() {
 
             counter++;
 
-            if (i == 305 && j == 200) {
-                //color = Vector(255, 255, 255);
-                cout << counter << endl;
-            }
+            //if (i == 167 && j == 243) {
+            //    //color = Vector(255, 255, 255);
+            //    cout << counter << endl;
+            //}
 
             Vector color = traceRay(ray, objects, directionToLight, ambientLighting, lightColor, backgroundColor, 1);
+
+            /*if (i == 167 && j == 243) {
+                color = Vector(255, 0, 0);
+            }*/
 
             
 
@@ -148,8 +152,6 @@ int main() {
             renderFile << color.toString() << endl;
         }
     }
-
-    cout << counter << endl; 
 
     renderFile.close();
 }
@@ -193,10 +195,8 @@ Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector direc
         float refl = closestObject->getRefl(); 
         if (refl > 0 && reflectionBounces > 0) {
             reflectionBounces--;
-            Vector reflectionRayDirection = 2 * surfaceNormal * surfaceNormal.dot(ray.direction) - ray.direction;
-            //cout << reflectionRayDirection << endl;
+            Vector reflectionRayDirection = -2 * surfaceNormal * surfaceNormal.dot(ray.direction) + ray.direction;
             Vector reflectionRayOrigin = intersectionPoint + surfaceNormal * 0.001;
-
             Ray reflectionRay = Ray(reflectionRayOrigin, reflectionRayDirection);
 
             reflectedColor = traceRay(reflectionRay, objects, directionToLight, ambientLighting, lightColor, backgroundColor, reflectionBounces) * refl;
