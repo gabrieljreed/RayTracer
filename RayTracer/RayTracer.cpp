@@ -79,6 +79,8 @@ int main() {
     int dimensionY = dimensionX;
 
     bool scene1 = false;
+    bool scene2 = true;
+    bool testScene = false;
 
     if (scene1) {
         objects.push_back(&s1);
@@ -87,15 +89,21 @@ int main() {
 
         directionToLight = Vector(0, 1, 0);
     }
-    else {
-        /*objects.push_back(&s2);
+    else if (scene2) {
+        // Scene 2 objects 
+        objects.push_back(&s2);
         objects.push_back(&s3);
         objects.push_back(&s4);
-        objects.push_back(&s5);*/
+        objects.push_back(&s5);
         objects.push_back(&t3);
-        //objects.push_back(&t4);
+        objects.push_back(&t4);
 
         directionToLight = Vector(1, 0, 0);
+    }
+    else if (testScene) {
+        Sphere sph = Sphere(Vector(0, 0, 0), 0.25, Vector(255, 255, 255), Vector(1, 1, 1), 1, 1, 1, 4, 0.0);
+        objects.push_back(&sph);
+        directionToLight = Vector(1, 1, 0);
     }
 
 
@@ -112,6 +120,8 @@ int main() {
 
     // -----------------------------------------------------Testing-----------------------------------------------------
 
+    int counter = 0;
+
     renderFile << "P3" << endl << dimensionX << " " << dimensionY << endl << "255" << endl;
     for (int j = dimensionY - 1; j >= 0; j--) {
         for (int i = 0; i < dimensionX; i++) {
@@ -123,12 +133,23 @@ int main() {
 
             Ray ray = Ray(cameraOrigin, direction, 1); // Ray from camera through each pixel 
 
+            counter++;
+
+            if (i == 305 && j == 200) {
+                //color = Vector(255, 255, 255);
+                cout << counter << endl;
+            }
+
             Vector color = traceRay(ray, objects, directionToLight, ambientLighting, lightColor, backgroundColor, 1);
+
+            
 
             // Write color to renderFile 
             renderFile << color.toString() << endl;
         }
     }
+
+    cout << counter << endl; 
 
     renderFile.close();
 }
@@ -181,7 +202,7 @@ Vector traceRay(const Ray& ray, const vector<Renderable*>& objects, Vector direc
             reflectedColor = traceRay(reflectionRay, objects, directionToLight, ambientLighting, lightColor, backgroundColor, reflectionBounces) * refl;
         }
 
-        // Write color to renderFile 
+        // Calculate color 
         return closestObject->calculateColor(surfaceNormal, directionToLight, ambientLighting, lightColor, ray.direction, isInShadow) + reflectedColor;
     }
 }

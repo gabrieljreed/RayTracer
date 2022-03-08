@@ -190,6 +190,7 @@ public:
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view, bool isInShadow) {
 		lightDirection.unitVector();
 		surfaceNormal.unitVector();
+		view.unitVector();
 
 		Vector result = Vector(0, 0, 0);
 
@@ -201,10 +202,26 @@ public:
 
 			Vector ambient = ambientIntensity * Ka * Od;
 
+			// Shoot out ray, calculate R from that, then see what that dots to with the light 
+
+			
+			lightDirection *= -1;
 			Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
+
+			
 			Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) * 255;
 
+			//cout << lightDirection.dot(R) << endl;
+
+			//cout << surfaceNormal << "\t" << lightDirection << "\t" << R << endl;
+			//cout << view << "\t" << R << "\t" << view.dot(R) << endl;
+			//cout << specular << endl; 
+
 			result = diffuse + ambient + specular;
+
+			if (result.x > 255) result.x = 255;
+			if (result.y > 255) result.y = 255;
+			if (result.z > 255) result.z = 255;
 		}
 
 		return result;

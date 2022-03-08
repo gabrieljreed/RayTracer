@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include <cmath>
 
 #include "Renderable.h"
 #include "Vector.h"
@@ -73,19 +74,17 @@ public:
 		float t;
 
 		if (insideSphere) {
-			t = tCA - sqrt(tCH2);
+			t = tCA + sqrt(tCH2);
 		}
 		else {
-			t = tCA + sqrt(tCH2);
+			t = tCA - sqrt(tCH2);
 		}
 
 		return t;
 	}
 
 	Vector calculateSurfaceNormal(const Vector& intersectionPoint) {
-		return Vector((intersectionPoint.x - center.x) / radius,
-			(intersectionPoint.y - center.y) / radius,
-			(intersectionPoint.z - center.z) / radius);
+		return (intersectionPoint - center) / radius;
 	}
 
 	Vector calculateColor(Vector surfaceNormal, Vector lightDirection, Vector ambientIntensity, Vector lightColor, Vector view, bool isInShadow) {
