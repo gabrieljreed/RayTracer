@@ -101,10 +101,17 @@ public:
 
 			Vector ambient = ambientIntensity * Ka * Od;
 
+			lightDirection *= -1;
 			Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
+
+
 			Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) * 255;
 
 			result = diffuse + ambient + specular;
+
+			if (result.x > 255) result.x = 255;
+			if (result.y > 255) result.y = 255;
+			if (result.z > 255) result.z = 255;
 		}
 
 		return result;

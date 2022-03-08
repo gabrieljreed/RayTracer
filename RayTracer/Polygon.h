@@ -201,21 +201,12 @@ public:
 			Vector diffuse = Kd * lightColor * Od * max((float)0, surfaceNormal.dot(lightDirection)); 
 
 			Vector ambient = ambientIntensity * Ka * Od;
-
-			// Shoot out ray, calculate R from that, then see what that dots to with the light 
-
 			
 			lightDirection *= -1;
 			Vector R = 2 * surfaceNormal * surfaceNormal.dot(lightDirection) - lightDirection;
 
 			
 			Vector specular = Ks * lightColor * Os * pow(max((float)0, view.dot(R)), kGls) * 255;
-
-			//cout << lightDirection.dot(R) << endl;
-
-			//cout << surfaceNormal << "\t" << lightDirection << "\t" << R << endl;
-			//cout << view << "\t" << R << "\t" << view.dot(R) << endl;
-			//cout << specular << endl; 
 
 			result = diffuse + ambient + specular;
 

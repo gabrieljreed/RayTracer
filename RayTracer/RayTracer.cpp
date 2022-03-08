@@ -25,6 +25,7 @@ int main() {
     // SCENE 1
     //Sphere s1 = Sphere(Vector(0, 0.3, -1.0), 0.25, Vector(191, 191, 191), Vector(1, 1, 1), 0.8, 0.1, 0.3, 10.0, 1.0);
     Sphere s1 = Sphere(Vector(0.0, 0.3, -1.0), 0.25, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.9);
+    //Sphere s1 = Sphere(Vector(0.0, 0.3, -1.0), 0.25, Vector(191, 191, 191), Vector(1, 1, 1), 0.0, 0.1, 0.1, 10.0, 0.0);
 
     vector<Vector> verts;
     verts.push_back(Vector(0.0, -0.7, -0.5));
